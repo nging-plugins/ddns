@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	tool.TopNavigate.Add(-1, &navigate.Item{
+	tool.TopNavigate.AddChild(`tool`, -1, &navigate.Item{
 		Display: true,
 		Name:    `DDNS`,
 		Action:  `ddns`,
