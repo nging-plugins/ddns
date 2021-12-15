@@ -1,0 +1,5 @@
+package ddnsmanager
+
+func init() {
+
+}
