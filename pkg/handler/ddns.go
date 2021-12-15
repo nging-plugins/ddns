@@ -49,5 +49,5 @@ END:
 	ctx.Set(`trackerTypes`, dnsdomain.TrackerTypes.Slice())
 	ctx.Set(`httpMethods`, webhook.Methods)
 	ctx.Set(`isRunning`, boot.IsRunning())
-	return ctx.Render(`tool/ddns`, handler.Err(ctx, err))
+	return ctx.Render(`ddns/ddns`, handler.Err(ctx, err))
 }
