@@ -1,5 +1,0 @@
-package ddnsmanager
-
-func init() {
-
-}
