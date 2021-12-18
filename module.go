@@ -12,7 +12,8 @@ var Module = module.Module{
 	TemplatePath: map[string]string{
 		ID: `ddnsmanager/template/backend`,
 	},
-	AssetsPath: []string{},
-	Navigate:   RegisterNavigate,
-	Route:      handler.RegisterRoute,
+	AssetsPath:  []string{},
+	Navigate:    RegisterNavigate,
+	Route:       handler.RegisterRoute,
+	DBSchemaVer: 0.0000,
 }
