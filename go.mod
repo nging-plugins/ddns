@@ -12,7 +12,7 @@ require (
 	github.com/miekg/dns v1.1.43
 	github.com/stretchr/testify v1.7.0
 	github.com/webx-top/com v0.3.5
-	github.com/webx-top/echo v2.23.7+incompatible
+	github.com/webx-top/echo v2.23.8+incompatible
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 )
 
