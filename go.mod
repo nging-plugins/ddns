@@ -10,9 +10,9 @@ require (
 	github.com/admpub/nging/v5 v5.0.0-00010101000000-000000000000
 	github.com/admpub/once v0.0.1
 	github.com/miekg/dns v1.1.54
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	github.com/webx-top/com v0.9.4
-	github.com/webx-top/echo v2.35.1+incompatible
+	github.com/webx-top/echo v2.35.2+incompatible
 	golang.org/x/net v0.10.0
 )
 
@@ -48,7 +48,7 @@ require (
 	github.com/admpub/mahonia v0.0.0-20151019004008-c528b747d92d // indirect
 	github.com/admpub/mail v0.0.0-20170408110349-d63147b0317b // indirect
 	github.com/admpub/marmot v0.0.0-20200702042226-2170d9ff59f5 // indirect
-	github.com/admpub/mysql-schema-sync v0.2.4 // indirect
+	github.com/admpub/mysql-schema-sync v0.2.5 // indirect
 	github.com/admpub/null v8.0.4+incompatible // indirect
 	github.com/admpub/pester v0.0.0-20200411024648-005672a2bd48 // indirect
 	github.com/admpub/randomize v0.0.2 // indirect
