@@ -15,6 +15,7 @@ import (
 	syncOnce "github.com/admpub/once"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager/config"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager/domain"
+	"github.com/nging-plugins/ddnsmanager/application/library/ddnsretry"
 	"github.com/webx-top/com"
 	"github.com/webx-top/echo"
 )
@@ -86,11 +87,12 @@ func Run(ctx context.Context, intervals ...time.Duration) (err error) {
 		log.Warn(`[DDNS] Exit task: The task does not meet the startup conditions`)
 		return nil
 	}
+	ddnsretry.RetrtDuration.Store(int32(cfg.Interval.Seconds()))
 	d := Domains()
 	if d == nil {
 		return ErrInitFail
 	}
-	err = d.Update(ctx, cfg)
+	err = d.Update(ctx, cfg, false)
 	if err != nil {
 		log.Error(`[DDNS] Exit task`)
 		return err
@@ -134,7 +136,7 @@ func Run(ctx context.Context, intervals ...time.Duration) (err error) {
 					return
 				}
 				log.Debug(`[DDNS] Checking network ip`)
-				err := d.Update(ctx, Config())
+				err := d.Update(ctx, Config(), false)
 				if err != nil {
 					log.Error(err)
 				}
