@@ -48,16 +48,16 @@ func (d Domain) GetSubDomain() string {
 	return "@"
 }
 
-type Result struct {
-	Domain string
-	Status string
-}
-
 func (d Domain) Result() *Result {
 	return &Result{
 		Domain: d.String(),
 		Status: string(d.UpdateStatus),
 	}
+}
+
+type Result struct {
+	Domain string
+	Status string
 }
 
 type Results map[string][]*Result

@@ -7,6 +7,7 @@ import (
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager/domain/dnsdomain"
 	"github.com/stretchr/testify/assert"
 	"github.com/webx-top/com"
+	"github.com/webx-top/echo/param"
 )
 
 func TestDomain(t *testing.T) {
@@ -25,21 +26,25 @@ func TestDomain(t *testing.T) {
 			DomainName:   "test.com.cn",
 			SubDomain:    "a.b.c",
 			UpdateStatus: "",
+			Extra:        param.Store{},
 		},
 		{
 			DomainName:   "webx.top",
 			SubDomain:    "w",
 			UpdateStatus: "",
+			Extra:        param.Store{},
 		},
 		{
 			DomainName:   "eget.io",
 			SubDomain:    "dl",
 			UpdateStatus: "",
+			Extra:        param.Store{},
 		},
 		{
 			DomainName:   "webx.top",
 			SubDomain:    "",
 			UpdateStatus: "",
+			Extra:        param.Store{},
 		},
 	}
 	assert.Equal(t, expected, domains)

@@ -10,5 +10,6 @@ const (
 	UpdatedFailed UpdateStatusType = "失败"
 	// UpdatedSuccess 更新成功
 	UpdatedSuccess UpdateStatusType = "成功"
-	UpdatedIdle    UpdateStatusType = ""
+	// UpdatedIdle 待更新
+	UpdatedIdle UpdateStatusType = "待更新"
 )

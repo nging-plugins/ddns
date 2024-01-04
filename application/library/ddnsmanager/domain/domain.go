@@ -50,6 +50,14 @@ func (domains *Domains) RestoreIP() error {
 	return nil
 }
 
+func (domains *Domains) ClearIP() error {
+	domains.IPv4Addr = ``
+	domains.IPv6Addr = ``
+	common.RemoveCache(`ip`, `ddns_ipv4`)
+	common.RemoveCache(`ip`, `ddns_ipv6`)
+	return nil
+}
+
 func (domains *Domains) SaveIP(ver int) error {
 	switch ver {
 	case 4:
@@ -61,30 +69,26 @@ func (domains *Domains) SaveIP(ver int) error {
 	}
 }
 
-func (domains *Domains) TagValues(ipv4Changed, ipv6Changed bool) *dnsdomain.TagValues {
+func (domains *Domains) TagValues(ipv4Updated, ipv6Updated map[string][]*dnsdomain.Domain) *dnsdomain.TagValues {
 	t := dnsdomain.NewTagValues()
-	if ipv4Changed {
-		t.IPv4Addr = domains.IPv4Addr
-		for _provider, _domains := range domains.IPv4Domains {
-			for _, _domain := range _domains {
-				if _domain == nil {
-					continue
-				}
-				t.IPv4Domains = append(t.IPv4Domains, _domain.String())
-				t.IPv4Result.Add(_provider, _domain.Result())
+	t.IPv4Addr = domains.IPv4Addr
+	for _provider, _domains := range ipv4Updated {
+		for _, _domain := range _domains {
+			if _domain == nil {
+				continue
 			}
+			t.IPv4Domains = append(t.IPv4Domains, _domain.String())
+			t.IPv4Result.Add(_provider, _domain.Result())
 		}
 	}
-	if ipv6Changed {
-		t.IPv6Addr = domains.IPv6Addr
-		for _provider, _domains := range domains.IPv6Domains {
-			for _, _domain := range _domains {
-				if _domain == nil {
-					continue
-				}
-				t.IPv6Domains = append(t.IPv6Domains, _domain.String())
-				t.IPv6Result.Add(_provider, _domain.Result())
+	t.IPv6Addr = domains.IPv6Addr
+	for _provider, _domains := range ipv6Updated {
+		for _, _domain := range _domains {
+			if _domain == nil {
+				continue
 			}
+			t.IPv6Domains = append(t.IPv6Domains, _domain.String())
+			t.IPv6Result.Add(_provider, _domain.Result())
 		}
 	}
 	t.IPAddr = domains.IPv6Addr

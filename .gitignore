@@ -13,4 +13,5 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-pkg/library/ddnsmanager/boot/data
+application/library/ddnsmanager/boot/data
+application/library/ddnsmanager/domain/data

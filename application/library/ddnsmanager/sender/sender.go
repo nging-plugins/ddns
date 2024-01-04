@@ -46,10 +46,10 @@ func (a *alarmContent) MarkdownContent(_ param.Store) []byte {
 		}
 	}
 	var content string
-	if len(a.IPv4Addr) > 0 {
+	if len(a.IPv4Addr) > 0 && len(a.IPv4Domains) > 0 {
 		content += `**IPv4**: ` + a.IPv4Addr + "\n**结果**:\n```\n" + a.IPv4Result.String() + "\n```\n"
 	}
-	if len(a.IPv6Addr) > 0 {
+	if len(a.IPv6Addr) > 0 && len(a.IPv6Domains) > 0 {
 		content += `**IPv6**: ` + a.IPv6Addr + "\n**结果**:\n```\n" + a.IPv6Result.String() + "\n```\n"
 	}
 	if len(a.Error) > 0 {
@@ -59,6 +59,12 @@ func (a *alarmContent) MarkdownContent(_ param.Store) []byte {
 		return nil
 	}
 	return com.Str2bytes(`### ` + a.title + "\n" + content + `**时间**: ` + time.Now().Format(time.RFC3339) + "\n")
+}
+
+var debug bool
+
+func SetDebug(on bool) {
+	debug = on
 }
 
 func Send(v dnsdomain.TagValues, tmpl map[string]string) (err error) {
@@ -72,6 +78,14 @@ func Send(v dnsdomain.TagValues, tmpl map[string]string) (err error) {
 		Title:   ct.title,
 		Content: ct,
 		Data:    param.Store{},
+	}
+	if debug {
+		com.Dump(param.Store{
+			`raw`:      alertData,
+			`html`:     string(ct.EmailContent(alertData.Data)),
+			`markdown`: string(ct.MarkdownContent(alertData.Data)),
+		})
+		return
 	}
 	if err = alert.SendTopic(ctx, `ddnsUpdate`, alertData); err != nil {
 		log.Warn(`alert.SendTopic: `, err)

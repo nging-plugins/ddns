@@ -24,7 +24,7 @@ func (domains *Domains) SetIPv4Addr(ipv4Addr string) {
 	domains.SaveIP(4)
 }
 
-func (domains *Domains) updateIPv4One(ctx context.Context, conf *config.Config, ipv4Addr string, dnsProvider string, wg *sync.WaitGroup, chanErrors chan error) error {
+func (domains *Domains) updateIPv4One(ctx context.Context, conf *config.Config, ipv4Addr string, dnsProvider string, wg *sync.WaitGroup, chanResult chan UpdateResult) ([]*dnsdomain.Domain, error) {
 	dnsDomains := domains.IPv4Domains[dnsProvider]
 	var _dnsDomains []*dnsdomain.Domain
 	for _, dnsDomain := range dnsDomains {
@@ -35,30 +35,36 @@ func (domains *Domains) updateIPv4One(ctx context.Context, conf *config.Config, 
 		if err != nil {
 			log.Errorf("[%s] ResolveDNS(%s): %s", dnsProvider, dnsDomain.String(), err.Error())
 			//errs = append(errs, err)
-			dnsDomain.UpdateStatus = dnsdomain.UpdatedIdle
-			_dnsDomains = append(_dnsDomains, dnsDomain)
+			copied := *dnsDomain
+			copied.UpdateStatus = dnsdomain.UpdatedIdle
+			_dnsDomains = append(_dnsDomains, &copied)
 			continue
 		}
 		if oldIP != ipv4Addr {
-			dnsDomain.UpdateStatus = dnsdomain.UpdatedIdle
-			_dnsDomains = append(_dnsDomains, dnsDomain)
+			copied := *dnsDomain
+			copied.UpdateStatus = dnsdomain.UpdatedIdle
+			_dnsDomains = append(_dnsDomains, &copied)
 			continue
 		}
-		dnsDomain.UpdateStatus = dnsdomain.UpdatedNothing
+		//dnsDomain.UpdateStatus = dnsdomain.UpdatedNothing
 		log.Infof("[%s] IP is the same as cached one (%s). Skip update (%s)", dnsProvider, ipv4Addr, dnsDomain.String())
 	}
 	if len(_dnsDomains) == 0 {
-		return echo.ErrContinue
+		return _dnsDomains, echo.ErrContinue
 	}
 	updater := ddnsmanager.Open(dnsProvider)
 	if updater == nil {
-		return echo.ErrContinue
+		return _dnsDomains, echo.ErrContinue
 	}
 	dnsService := conf.FindService(dnsProvider)
 	err := updater.Init(dnsService.Settings, _dnsDomains)
 	if err != nil {
-		chanErrors <- err
-		return echo.ErrContinue
+		chanResult <- UpdateResult{
+			Provider: dnsProvider,
+			Updated:  _dnsDomains,
+			Error:    err,
+		}
+		return _dnsDomains, echo.ErrContinue
 	}
 	log.Infof("[%s] %s - Start to update record IP...", dnsProvider, ipv4Addr)
 	err = updater.Update(ctx, `A`, ipv4Addr)
@@ -67,17 +73,21 @@ func (domains *Domains) updateIPv4One(ctx context.Context, conf *config.Config, 
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			chanErrors <- ddnsretry.Retry(ctx, func(retryCtx context.Context) error {
-				err := updater.Update(retryCtx, `A`, ipv4Addr)
-				if err != nil {
-					err = fmt.Errorf("[%s] %s - Failed to update IP: %v", dnsProvider, ipv4Addr, err)
-				}
-				return err
-			})
+			chanResult <- UpdateResult{
+				Provider: dnsProvider,
+				Updated:  _dnsDomains,
+				Error: ddnsretry.Retry(ctx, func(retryCtx context.Context) error {
+					err := updater.Update(retryCtx, `A`, ipv4Addr)
+					if err != nil {
+						err = fmt.Errorf("[%s] %s - Failed to update IP: %v", dnsProvider, ipv4Addr, err)
+					}
+					return err
+				}),
+			}
 		}()
-		return echo.ErrContinue
+		return _dnsDomains, echo.ErrContinue
 	}
-	return err
+	return _dnsDomains, err
 }
 
 func (domains *Domains) SetIPv6Addr(ipv6Addr string) {
@@ -85,7 +95,7 @@ func (domains *Domains) SetIPv6Addr(ipv6Addr string) {
 	domains.SaveIP(6)
 }
 
-func (domains *Domains) updateIPv6One(ctx context.Context, conf *config.Config, ipv6Addr string, dnsProvider string, wg *sync.WaitGroup, chanErrors chan error) error {
+func (domains *Domains) updateIPv6One(ctx context.Context, conf *config.Config, ipv6Addr string, dnsProvider string, wg *sync.WaitGroup, chanResult chan UpdateResult) ([]*dnsdomain.Domain, error) {
 	dnsDomains := domains.IPv4Domains[dnsProvider]
 	var _dnsDomains []*dnsdomain.Domain
 	for _, dnsDomain := range dnsDomains {
@@ -96,30 +106,36 @@ func (domains *Domains) updateIPv6One(ctx context.Context, conf *config.Config, 
 		if err != nil {
 			log.Errorf("[%s] ResolveDNS(%s): %s", dnsProvider, dnsDomain.String(), err.Error())
 			//errs = append(errs, err)
-			dnsDomain.UpdateStatus = dnsdomain.UpdatedIdle
-			_dnsDomains = append(_dnsDomains, dnsDomain)
+			copied := *dnsDomain
+			copied.UpdateStatus = dnsdomain.UpdatedIdle
+			_dnsDomains = append(_dnsDomains, &copied)
 			continue
 		}
 		if oldIP != ipv6Addr {
-			dnsDomain.UpdateStatus = dnsdomain.UpdatedIdle
-			_dnsDomains = append(_dnsDomains, dnsDomain)
+			copied := *dnsDomain
+			copied.UpdateStatus = dnsdomain.UpdatedIdle
+			_dnsDomains = append(_dnsDomains, &copied)
 			continue
 		}
-		dnsDomain.UpdateStatus = dnsdomain.UpdatedNothing
+		//dnsDomain.UpdateStatus = dnsdomain.UpdatedNothing
 		log.Infof("[%s] IP is the same as cached one (%s). Skip update (%s)", dnsProvider, ipv6Addr, dnsDomain.String())
 	}
 	if len(_dnsDomains) == 0 {
-		return echo.ErrContinue
+		return _dnsDomains, echo.ErrContinue
 	}
 	updater := ddnsmanager.Open(dnsProvider)
 	if updater == nil {
-		return echo.ErrContinue
+		return _dnsDomains, echo.ErrContinue
 	}
 	dnsService := conf.FindService(dnsProvider)
 	err := updater.Init(dnsService.Settings, _dnsDomains)
 	if err != nil {
-		chanErrors <- err
-		return echo.ErrContinue
+		chanResult <- UpdateResult{
+			Provider: dnsProvider,
+			Updated:  _dnsDomains,
+			Error:    err,
+		}
+		return _dnsDomains, echo.ErrContinue
 	}
 	log.Infof("[%s] %s - Start to update record IP...", dnsProvider, ipv6Addr)
 	err = updater.Update(ctx, `AAAA`, ipv6Addr)
@@ -128,21 +144,25 @@ func (domains *Domains) updateIPv6One(ctx context.Context, conf *config.Config, 
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			chanErrors <- ddnsretry.Retry(ctx, func(retryCtx context.Context) error {
-				err := updater.Update(retryCtx, `AAAA`, ipv6Addr)
-				if err != nil {
-					err = fmt.Errorf("[%s] %s - Failed to update IP: %v", dnsProvider, ipv6Addr, err)
-				}
-				return err
-			})
+			chanResult <- UpdateResult{
+				Provider: dnsProvider,
+				Updated:  _dnsDomains,
+				Error: ddnsretry.Retry(ctx, func(retryCtx context.Context) error {
+					err := updater.Update(retryCtx, `AAAA`, ipv6Addr)
+					if err != nil {
+						err = fmt.Errorf("[%s] %s - Failed to update IP: %v", dnsProvider, ipv6Addr, err)
+					}
+					return err
+				}),
+			}
 		}()
-		return echo.ErrContinue
+		return _dnsDomains, echo.ErrContinue
 	}
-	return err
+	return _dnsDomains, err
 }
 
 func (domains *Domains) makeUpdater(ipVer int, dnsProviders ...string) Updater {
-	return func(ctx context.Context, conf *config.Config, ipAddr string, force bool) (changed bool, errs []error) {
+	return func(ctx context.Context, conf *config.Config, ipAddr string, force bool) (changed bool, updated map[string][]*dnsdomain.Domain, errs []error) {
 		if len(ipAddr) == 0 {
 			log.Warnf(`[DDNS] 没有查到ipv%d地址`, ipVer)
 			return
@@ -161,10 +181,11 @@ func (domains *Domains) makeUpdater(ipVer int, dnsProviders ...string) Updater {
 			}
 		}
 		wg := &sync.WaitGroup{}
-		chanErrors := make(chan error, len(dnsProviders))
+		chanResults := make(chan UpdateResult, len(dnsProviders))
+		updated = map[string][]*dnsdomain.Domain{}
 		if ipVer == 4 {
 			for _, dnsProvider := range dnsProviders {
-				err := domains.updateIPv4One(ctx, conf, ipAddr, dnsProvider, wg, chanErrors)
+				upd, err := domains.updateIPv4One(ctx, conf, ipAddr, dnsProvider, wg, chanResults)
 				if err != nil {
 					if err == echo.ErrContinue {
 						continue
@@ -172,11 +193,17 @@ func (domains *Domains) makeUpdater(ipVer int, dnsProviders ...string) Updater {
 					errs = append(errs, err)
 					continue
 				}
-				changed = true
+				if len(upd) > 0 {
+					if _, ok := updated[dnsProvider]; !ok {
+						updated[dnsProvider] = []*dnsdomain.Domain{}
+					}
+					updated[dnsProvider] = append(updated[dnsProvider], upd...)
+					changed = true
+				}
 			}
 		} else {
 			for _, dnsProvider := range dnsProviders {
-				err := domains.updateIPv6One(ctx, conf, ipAddr, dnsProvider, wg, chanErrors)
+				upd, err := domains.updateIPv6One(ctx, conf, ipAddr, dnsProvider, wg, chanResults)
 				if err != nil {
 					if err == echo.ErrContinue {
 						continue
@@ -184,27 +211,46 @@ func (domains *Domains) makeUpdater(ipVer int, dnsProviders ...string) Updater {
 					errs = append(errs, err)
 					continue
 				}
-				changed = true
+				if len(upd) > 0 {
+					if _, ok := updated[dnsProvider]; !ok {
+						updated[dnsProvider] = []*dnsdomain.Domain{}
+					}
+					updated[dnsProvider] = append(updated[dnsProvider], upd...)
+					changed = true
+				}
 			}
 		}
 		wg.Wait()
-		close(chanErrors)
-		for chanErr := range chanErrors {
-			if chanErr == nil {
-				changed = true
+		close(chanResults)
+		for updateResult := range chanResults {
+			if len(updateResult.Updated) > 0 {
+				if _, ok := updated[updateResult.Provider]; !ok {
+					updated[updateResult.Provider] = []*dnsdomain.Domain{}
+				}
+				if !changed {
+					for _, v := range updateResult.Updated {
+						if v.UpdateStatus == dnsdomain.UpdatedSuccess {
+							changed = true
+							break
+						}
+					}
+				}
+				updated[updateResult.Provider] = append(updated[updateResult.Provider], updateResult.Updated...)
+			}
+			if updateResult.Error == nil {
+				if !changed {
+					changed = true
+				}
 				continue
 			}
-			log.Error(chanErr.Error())
-			errs = append(errs, chanErr)
-		}
-		if len(errs) == 0 {
-			changed = true
+			log.Error(updateResult.Error)
+			errs = append(errs, updateResult.Error)
 		}
 		return
 	}
 }
 
-type Updater func(ctx context.Context, conf *config.Config, ipv6Addr string, force bool) (ipv6Changed bool, errs []error)
+type Updater func(ctx context.Context, conf *config.Config, ipv6Addr string, force bool) (ipv6Changed bool, updated map[string][]*dnsdomain.Domain, errs []error)
 
 func (domains *Domains) Update(ctx context.Context, conf *config.Config, force bool, dnsProviders ...string) error {
 
@@ -212,6 +258,8 @@ func (domains *Domains) Update(ctx context.Context, conf *config.Config, force b
 		errs        []error
 		ipv4Changed bool
 		ipv6Changed bool
+		ipv4Updated map[string][]*dnsdomain.Domain
+		ipv6Updated map[string][]*dnsdomain.Domain
 	)
 
 	// IPv4
@@ -227,7 +275,7 @@ func (domains *Domains) Update(ctx context.Context, conf *config.Config, force b
 				}
 			}
 			updater = domains.makeUpdater(4, dnsProviders...)
-			ipv4Changed, errs = updater(ctx, conf, ipv4Addr, force)
+			ipv4Changed, ipv4Updated, errs = updater(ctx, conf, ipv4Addr, force)
 			if ipv4Changed {
 				domains.SetIPv4Addr(ipv4Addr)
 			}
@@ -247,7 +295,7 @@ func (domains *Domains) Update(ctx context.Context, conf *config.Config, force b
 			}
 			updater = domains.makeUpdater(6, dnsProviders...)
 			var _errs []error
-			ipv6Changed, _errs = updater(ctx, conf, ipv6Addr, force)
+			ipv6Changed, ipv6Updated, _errs = updater(ctx, conf, ipv6Addr, force)
 			if ipv6Changed {
 				domains.SetIPv6Addr(ipv6Addr)
 			}
@@ -276,7 +324,7 @@ func (domains *Domains) Update(ctx context.Context, conf *config.Config, force b
 		if t != nil {
 			return t
 		}
-		t = domains.TagValues(ipv4Changed, ipv6Changed)
+		t = domains.TagValues(ipv4Updated, ipv6Updated)
 		if err != nil {
 			t.Error = err.Error()
 		}

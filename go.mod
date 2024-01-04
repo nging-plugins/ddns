@@ -13,12 +13,13 @@ require (
 	github.com/miekg/dns v1.1.57
 	github.com/stretchr/testify v1.8.4
 	github.com/webx-top/com v1.2.11
-	github.com/webx-top/echo v2.42.22+incompatible
+	github.com/webx-top/echo v2.42.28+incompatible
 	golang.org/x/net v0.19.0
 )
 
 require (
 	github.com/abh/errorutil v1.0.0 // indirect
+	github.com/admpub/captcha-go v0.0.1 // indirect
 	github.com/admpub/ccs-gm v0.0.5 // indirect
 	github.com/admpub/checksum v1.1.0 // indirect
 	github.com/admpub/color v1.8.1 // indirect
@@ -55,6 +56,7 @@ require (
 	github.com/admpub/mysql-schema-sync v0.2.6 // indirect
 	github.com/admpub/null v8.0.4+incompatible // indirect
 	github.com/admpub/pester v0.0.0-20200411024648-005672a2bd48 // indirect
+	github.com/admpub/pp v0.0.7 // indirect
 	github.com/admpub/randomize v0.0.2 // indirect
 	github.com/admpub/realip v0.0.1 // indirect
 	github.com/admpub/redistore v1.2.1 // indirect
@@ -109,14 +111,14 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20221212215047-62379fc7944b // indirect
-	github.com/prometheus/client_golang v1.17.0 // indirect
+	github.com/prometheus/client_golang v1.18.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
-	github.com/shirou/gopsutil/v3 v3.23.11 // indirect
+	github.com/shirou/gopsutil/v3 v3.23.12 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tklauser/go-sysconf v0.3.13 // indirect
