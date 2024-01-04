@@ -68,6 +68,11 @@ func SetDebug(on bool) {
 }
 
 func Send(v dnsdomain.TagValues, tmpl map[string]string) (err error) {
+	if (len(v.IPv4Addr) == 0 || len(v.IPv4Domains) == 0) &&
+		(len(v.IPv6Addr) == 0 || len(v.IPv6Domains) == 0) &&
+		len(v.Error) == 0 {
+		return
+	}
 	ctx := defaults.NewMockContext()
 	ct := &alarmContent{
 		title:     `[DDNS]IP变更通知`,

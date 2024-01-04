@@ -154,7 +154,7 @@ func TestUpdate(t *testing.T) {
 	time.Sleep(2 * time.Second)
 	//*/
 
-	d.ClearIP()
+	//d.ClearIP()
 	go func() {
 		time.Sleep(5 * time.Second)
 		cancel()
