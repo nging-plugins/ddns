@@ -11,4 +11,14 @@ func TestResolveDNS(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(`ResolveDNS:`, ip)
+	ip, err = ResolveDNS(`ip6.enote.vip`, `8.8.8.8`, `IPV6`)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(`ResolveDNS:`, ip)
+	ip, err = ResolveDNS(`ip6.enote.vip`, ``, `IPV6`)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(`ResolveDNS:`, ip)
 }

@@ -66,7 +66,7 @@ func (domains *Domains) updateIPv4One(ctx context.Context, conf *config.Config, 
 		}
 		return _dnsDomains, echo.ErrContinue
 	}
-	log.Infof("[%s] %s - Start to update record IP...", dnsProvider, ipv4Addr)
+	log.Infof("[%s] %s - Start to update record IPv4...", dnsProvider, ipv4Addr)
 	err = updater.Update(ctx, `A`, ipv4Addr)
 	if err != nil {
 		log.Errorf("[%s] %s - Failed to update IP: %v (Wait to try again later)", dnsProvider, ipv4Addr, err)
@@ -96,7 +96,7 @@ func (domains *Domains) SetIPv6Addr(ipv6Addr string) {
 }
 
 func (domains *Domains) updateIPv6One(ctx context.Context, conf *config.Config, ipv6Addr string, dnsProvider string, wg *sync.WaitGroup, chanResult chan UpdateResult) ([]*dnsdomain.Domain, error) {
-	dnsDomains := domains.IPv4Domains[dnsProvider]
+	dnsDomains := domains.IPv6Domains[dnsProvider]
 	var _dnsDomains []*dnsdomain.Domain
 	for _, dnsDomain := range dnsDomains {
 		if dnsDomain == nil {
@@ -137,7 +137,7 @@ func (domains *Domains) updateIPv6One(ctx context.Context, conf *config.Config, 
 		}
 		return _dnsDomains, echo.ErrContinue
 	}
-	log.Infof("[%s] %s - Start to update record IP...", dnsProvider, ipv6Addr)
+	log.Infof("[%s] %s - Start to update record IPv6...", dnsProvider, ipv6Addr)
 	err = updater.Update(ctx, `AAAA`, ipv6Addr)
 	if err != nil {
 		log.Errorf("[%s] %s - Failed to update IP: %v (Wait to try again later)", dnsProvider, ipv6Addr, err)
