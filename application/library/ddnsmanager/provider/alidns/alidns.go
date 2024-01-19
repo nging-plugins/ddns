@@ -211,12 +211,12 @@ func (ali *Alidns) request(ctx context.Context, params url.Values, result interf
 		alidnsEndpoint,
 		bytes.NewBuffer(nil),
 	)
-	req.URL.RawQuery = params.Encode()
-
 	if err != nil {
 		log.Error("http.NewRequest失败. Error: ", err)
 		return
 	}
+
+	req.URL.RawQuery = params.Encode()
 
 	var resp *http.Response
 	resp, err = ali.client.Do(req)

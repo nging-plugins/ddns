@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/webx-top/echo"
+	"github.com/webx-top/echo/code"
 
 	"github.com/admpub/nging/v5/application/handler"
 	"github.com/admpub/nging/v5/application/library/webhook"
@@ -19,6 +20,13 @@ func DdnsSettings(ctx echo.Context) error {
 	var err error
 	cfg := boot.Config()
 	if ctx.IsPost() {
+		if ctx.Formx(`force`).Bool() {
+			err = boot.ForceUpdate(ctx)
+			if err != nil {
+				return ctx.JSON(ctx.Data().SetError(err))
+			}
+			return ctx.JSON(ctx.Data().SetInfo(ctx.T(`执行成功`), code.Success.Int()))
+		}
 		cfg = config.New()
 		if err = ctx.MustBindAndValidate(cfg); err != nil {
 			goto END

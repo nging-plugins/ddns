@@ -10,6 +10,7 @@ require (
 	github.com/admpub/nging/v5 v5.0.0-00010101000000-000000000000
 	github.com/admpub/once v0.0.1
 	github.com/admpub/resty/v2 v2.7.1
+	github.com/coscms/goroutinetimeout v0.1.1
 	github.com/miekg/dns v1.1.58
 	github.com/stretchr/testify v1.8.4
 	github.com/webx-top/com v1.2.11

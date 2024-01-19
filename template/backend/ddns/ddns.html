@@ -8,8 +8,8 @@
 {{Block "head"}}
 <style type="text/css">
 #ddns-running-status>.label-success{display: none;}
-#ddns-running-status>.label-danger{display: inline;}
-#ddns-running-status.running>.label-success{display: inline;}
+#ddns-running-status>.label-danger{display: block;}
+#ddns-running-status.running>.label-success{display: block;}
 #ddns-running-status.running>.label-danger{display: none;}
 </style>
 {{/Block}}
@@ -19,9 +19,15 @@
     <div class="col-md-12">
         <div class="block-flat no-padding">
           <div class="header no-border">
+            {{if $.Stored.isRunning}}
+            <a class="pull-right btn btn-warning xs-margin-left" href="javascript:;" data-ajax-url="{{BackendURL}}/tool/ddns" data-ajax-method="post" data-ajax-params='{"force":1}' data-ajax-accept="json" class="pull-right" id="ddns-force-update">
+              <i class="fa fa-refresh"></i>
+              {{`强制更新IP`|$.T}}
+            </a>
+            {{end}}
             <span class="pull-right{{if $.Stored.isRunning}} running{{end}}" id="ddns-running-status">
-              <span class="label label-success">{{`运行中`|$.T}}</span>
-              <span class="label label-danger">{{`已停止`|$.T}}</span>
+              <span class="label label-success label-btn-size">{{`运行中`|$.T}}</span>
+              <span class="label label-danger label-btn-size">{{`已停止`|$.T}}</span>
             </span>
             <h3>{{$.Stored.title}}</h3>
           </div>

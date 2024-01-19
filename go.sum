@@ -1125,6 +1125,8 @@ github.com/cncf/xds/go v0.0.0-20230607035331-e9ce68804cb4/go.mod h1:eXthEFrGJvWH
 github.com/coreos/go-systemd v0.0.0-20181012123002-c6f51f82210d/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
 github.com/coscms/forms v1.12.2 h1:ag3NvoXNWiVTUcbeO4cukkMPhe5XAMYbq462ZG8x2Zg=
 github.com/coscms/forms v1.12.2/go.mod h1:WsTYDKG+4cXt1wBNsqv9hFJ34sdkRHai9n/scu4ap2g=
+github.com/coscms/goroutinetimeout v0.1.1 h1:Huy+m2ADNg0UPxn4t7NfLy+oInfTXKGCm7geC/Xy3xk=
+github.com/coscms/goroutinetimeout v0.1.1/go.mod h1:ea7lYj69KpckUWJ2BrQ/zggdH0JA40kWxVTpk0cbDF0=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

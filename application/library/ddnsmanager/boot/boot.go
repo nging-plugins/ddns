@@ -3,6 +3,7 @@ package boot
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
@@ -18,6 +19,7 @@ import (
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsretry"
 	"github.com/webx-top/com"
 	"github.com/webx-top/echo"
+	"github.com/webx-top/echo/code"
 )
 
 var (
@@ -25,9 +27,12 @@ var (
 	domains         *domain.Domains
 	once            syncOnce.Once
 	mutex           sync.RWMutex
+	ctx             context.Context
 	cancel          context.CancelFunc
 	defaultInterval = 5 * time.Minute
 	waitingDuration = 500 * time.Millisecond
+	forceUpdateSig  = make(chan struct{})
+	forceUpdateErr  = make(chan error)
 	ErrInitFail     = errors.New(`ddns boot failed`)
 )
 
@@ -46,14 +51,22 @@ func init() {
 	startup.OnAfter(`web.installed`, start)
 }
 
-func start() {
+func parseConfig() error {
 	saveFile := filepath.Join(echo.Wd(), `config/ddns.yaml`)
 	if !com.FileExists(saveFile) {
-		return
+		return fmt.Errorf(`%w: %s`, os.ErrNotExist, saveFile)
 	}
 	_, err := confl.DecodeFile(saveFile, dflt)
 	if err != nil {
-		log.Error(saveFile+`: `, err)
+		err = fmt.Errorf(`%s: %w`, saveFile, err)
+	}
+	return err
+}
+
+func start() {
+	err := parseConfig()
+	if err != nil {
+		log.Error(err.Error())
 		return
 	}
 	if dflt.Closed {
@@ -81,7 +94,7 @@ func SetConfig(c *config.Config) error {
 	return nil
 }
 
-func Run(ctx context.Context, intervals ...time.Duration) (err error) {
+func Run(rootCtx context.Context, intervals ...time.Duration) (err error) {
 	cfg := Config()
 	if !cfg.IsValid() {
 		log.Warn(`[DDNS] Exit task: The task does not meet the startup conditions`)
@@ -92,20 +105,41 @@ func Run(ctx context.Context, intervals ...time.Duration) (err error) {
 	if d == nil {
 		return ErrInitFail
 	}
-	err = d.Update(ctx, cfg, false)
-	if err != nil {
-		log.Error(`[DDNS] Exit task`)
-		return err
-	}
+
 	mutex.Lock()
 	if cancel != nil {
 		cancel()
 		cancel = nil
 		time.Sleep(waitingDuration)
 	}
-	var c context.Context
-	c, cancel = context.WithCancel(ctx)
+	ctx, cancel = context.WithCancel(rootCtx)
 	mutex.Unlock()
+
+	err = d.Update(ctx, cfg, false)
+	if err != nil {
+		log.Error(`[DDNS] Exit task`)
+		return err
+	}
+
+	up := func(c context.Context, force bool) error {
+		d := Domains()
+		if d == nil {
+			mutex.Lock()
+			if cancel != nil {
+				cancel()
+				cancel = nil
+			}
+			mutex.Unlock()
+			err = ErrInitFail
+			return err
+		}
+		log.Debug(`[DDNS] Checking network ip`)
+		err := d.Update(c, Config(), force)
+		if err != nil {
+			log.Error(err)
+		}
+		return nil
+	}
 	go func() {
 		interval := cfg.Interval
 		if len(intervals) > 0 {
@@ -119,26 +153,18 @@ func Run(ctx context.Context, intervals ...time.Duration) (err error) {
 		log.Okay(`[DDNS] Starting task. Interval: `, interval.String())
 		for {
 			select {
-			case <-c.Done():
+			case <-ctx.Done():
 				log.Warn(`[DDNS] Forced exit task`)
 				return
 			case <-t.C:
-				d := Domains()
-				if d == nil {
-					mutex.Lock()
-					if cancel != nil {
-						cancel()
-						cancel = nil
-					}
-					mutex.Unlock()
-					err = ErrInitFail
+				if err := up(ctx, false); err != nil {
 					log.Error(`[DDNS] Exit task. Error: `, err.Error())
 					return
 				}
-				log.Debug(`[DDNS] Checking network ip`)
-				err := d.Update(ctx, Config(), false)
-				if err != nil {
-					log.Error(err)
+			case <-forceUpdateSig:
+				select {
+				case forceUpdateErr <- up(ctx, true):
+				default:
 				}
 			}
 		}
@@ -149,6 +175,29 @@ func Run(ctx context.Context, intervals ...time.Duration) (err error) {
 func Domains() *domain.Domains {
 	once.Do(initDomains)
 	return domains
+}
+
+func ForceUpdate(eCtx echo.Context) error {
+	cfg := Config()
+	if cfg.Closed {
+		return eCtx.NewError(code.DataNotFound, `任务没有开启`)
+	}
+	d := Domains()
+	if d == nil {
+		return eCtx.NewError(code.DataNotFound, `任务启动失败，请查看日志了解详情`)
+	}
+	//return d.Update(ctx, cfg, true)
+
+	t := time.NewTimer(time.Second * 3)
+	defer t.Stop()
+	for {
+		select {
+		case forceUpdateSig <- struct{}{}:
+			return <-forceUpdateErr
+		case <-t.C:
+			return context.DeadlineExceeded
+		}
+	}
 }
 
 func Reset(ctx context.Context) error {
