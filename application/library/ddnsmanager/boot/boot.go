@@ -138,7 +138,7 @@ func Run(rootCtx context.Context, intervals ...time.Duration) (err error) {
 		if err != nil {
 			log.Error(err)
 		}
-		return nil
+		return err
 	}
 	go func() {
 		interval := cfg.Interval
@@ -157,7 +157,8 @@ func Run(rootCtx context.Context, intervals ...time.Duration) (err error) {
 				log.Warn(`[DDNS] Forced exit task`)
 				return
 			case <-t.C:
-				if err := up(ctx, false); err != nil {
+				err := up(ctx, false)
+				if err != nil && errors.Is(err, ErrInitFail) {
 					log.Error(`[DDNS] Exit task. Error: `, err.Error())
 					return
 				}
