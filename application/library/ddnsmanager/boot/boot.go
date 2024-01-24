@@ -66,6 +66,10 @@ func parseConfig() error {
 func start() {
 	err := parseConfig()
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			log.Info(err.Error())
+			return
+		}
 		log.Error(err.Error())
 		return
 	}
