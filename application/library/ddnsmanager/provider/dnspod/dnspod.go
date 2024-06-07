@@ -157,7 +157,7 @@ func (dnspod *Dnspod) create(ctx context.Context, result DnspodRecordListResp, d
 		log.Infof("新增域名解析 %s 成功！IP: %s", domain, ipAddr)
 		domain.UpdateStatus = dnsdomain.UpdatedSuccess
 	} else {
-		log.Errorf("新增域名解析 %s 失败！Code: %s, Message: %s, Error: %v", domain, status.Status.Code, status.Status.Message)
+		log.Errorf("新增域名解析 %s 失败！Code: %s, Message: %s, Error: %v", domain, status.Status.Code, status.Status.Message, err)
 		domain.UpdateStatus = dnsdomain.UpdatedFailed
 	}
 	return err
