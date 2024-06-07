@@ -10,7 +10,7 @@ import (
 	"github.com/admpub/log"
 )
 
-var ErrCanceledRetry = errors.New(`canceled retry:`)
+var ErrCanceledRetry = errors.New(`canceled retry`)
 var RetryDuration atomic.Int32 // 最大间隔秒数
 
 func init() {
