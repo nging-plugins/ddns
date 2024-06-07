@@ -33,24 +33,27 @@ type TagValues struct {
 }
 
 func (t *TagValues) Parse(content string) string {
-	content = strings.ReplaceAll(content, Tag(`ip`), t.IPAddr)
-	content = strings.ReplaceAll(content, Tag(`ipv4Addr`), t.IPv4Addr)                           // 新的IPv4地址
-	content = strings.ReplaceAll(content, Tag(`ipv4Result`), t.IPv4Result.String())              // IPv4地址更新结果: `未改变` `失败` `成功`
-	content = strings.ReplaceAll(content, Tag(`ipv4Domains`), strings.Join(t.IPv4Domains, `, `)) // IPv4的域名，多个以`,`分割
-	content = strings.ReplaceAll(content, Tag(`ipv6Addr`), t.IPv6Addr)                           // 新的IPv6地址
-	content = strings.ReplaceAll(content, Tag(`ipv6Result`), t.IPv6Result.String())              // IPv6地址更新结果: `未改变` `失败` `成功`
-	content = strings.ReplaceAll(content, Tag(`ipv6Domains`), strings.Join(t.IPv6Domains, `, `)) // IPv6的域名，多个以`,`分割
-	content = strings.ReplaceAll(content, Tag(`error`), t.Error)
-	return content
+	repl := strings.NewReplacer(
+     Tag(`ip`), t.IPAddr,
+	    Tag(`ipv4Addr`), t.IPv4Addr,                           // 新的IPv4地址
+	    Tag(`ipv4Result`), t.IPv4Result.String(),              // IPv4地址更新结果: `未改变` `失败` `成功`
+	    Tag(`ipv4Domains`), strings.Join(t.IPv4Domains, `, `), // IPv4的域名，多个以`,`分割
+     Tag(`ipv6Addr`), t.IPv6Addr,                           // 新的IPv6地址
+	    Tag(`ipv6Result`), t.IPv6Result.String(),              // IPv6地址更新结果: `未改变` `失败` `成功`
+	    Tag(`ipv6Domains`), strings.Join(t.IPv6Domains, `, `), // IPv6的域名，多个以`,`分割
+	    Tag(`error`), t.Error,
+ )
+	return repl.Replace(content)
 }
 
 var tagNames = []string{`ip`, `ipv4Addr`, `ipv4Result`, `ipv4Domains`, `ipv6Addr`, `ipv6Result`, `ipv6Domains`, `error`}
 
 func (t *TagValues) ParseQuery(urlQuery string) string {
+ args := make([]string{}, 0, len(tagNames)*2)
 	for _, key := range tagNames {
-		urlQuery = strings.ReplaceAll(urlQuery, Tag(key), t.urlEscape(key))
+		args = append(args, Tag(key), t.urlEscape(key))
 	}
-	return urlQuery
+	return strings.NewReplacer(args...).Replace(urlQuery)
 }
 
 func (t *TagValues) urlEscape(key string) string {
