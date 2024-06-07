@@ -104,7 +104,7 @@ func Run(rootCtx context.Context, intervals ...time.Duration) (err error) {
 		log.Warn(`[DDNS] Exit task: The task does not meet the startup conditions`)
 		return nil
 	}
-	ddnsretry.RetrtDuration.Store(int32(cfg.Interval.Seconds()))
+	ddnsretry.RetryDuration.Store(int32(cfg.Interval.Seconds()))
 	d := Domains()
 	if d == nil {
 		return ErrInitFail
