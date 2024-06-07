@@ -33,25 +33,25 @@ type TagValues struct {
 }
 
 func (t *TagValues) Parse(content string) string {
-	repl := strings.NewReplacer(
-     Tag(`ip`), t.IPAddr,
-	    Tag(`ipv4Addr`), t.IPv4Addr,                           // 新的IPv4地址
-	    Tag(`ipv4Result`), t.IPv4Result.String(),              // IPv4地址更新结果: `未改变` `失败` `成功`
-	    Tag(`ipv4Domains`), strings.Join(t.IPv4Domains, `, `), // IPv4的域名，多个以`,`分割
-     Tag(`ipv6Addr`), t.IPv6Addr,                           // 新的IPv6地址
-	    Tag(`ipv6Result`), t.IPv6Result.String(),              // IPv6地址更新结果: `未改变` `失败` `成功`
-	    Tag(`ipv6Domains`), strings.Join(t.IPv6Domains, `, `), // IPv6的域名，多个以`,`分割
-	    Tag(`error`), t.Error,
- )
+	  repl := strings.NewReplacer(
+      Tag(`ip`), t.IPAddr,
+	     Tag(`ipv4Addr`), t.IPv4Addr,                           // 新的IPv4地址
+	     Tag(`ipv4Result`), t.IPv4Result.String(),              // IPv4地址更新结果: `未改变` `失败` `成功`
+	     Tag(`ipv4Domains`), strings.Join(t.IPv4Domains, `, `), // IPv4的域名，多个以`,`分割
+      Tag(`ipv6Addr`), t.IPv6Addr,                           // 新的IPv6地址
+	     Tag(`ipv6Result`), t.IPv6Result.String(),              // IPv6地址更新结果: `未改变` `失败` `成功`
+	     Tag(`ipv6Domains`), strings.Join(t.IPv6Domains, `, `), // IPv6的域名，多个以`,`分割
+	     Tag(`error`), t.Error,
+    )
 	return repl.Replace(content)
 }
 
 var tagNames = []string{`ip`, `ipv4Addr`, `ipv4Result`, `ipv4Domains`, `ipv6Addr`, `ipv6Result`, `ipv6Domains`, `error`}
 
 func (t *TagValues) ParseQuery(urlQuery string) string {
- args := make([]string{}, 0, len(tagNames)*2)
+   args := make([]string{}, 0, len(tagNames)*2)
 	for _, key := range tagNames {
-		args = append(args, Tag(key), t.urlEscape(key))
+		  args = append(args, Tag(key), t.urlEscape(key))
 	}
 	return strings.NewReplacer(args...).Replace(urlQuery)
 }
