@@ -11,10 +11,10 @@ import (
 )
 
 var ErrCanceledRetry = errors.New(`canceled retry:`)
-var RetrtDuration atomic.Int32 // 最大间隔秒数
+var RetryDuration atomic.Int32 // 最大间隔秒数
 
 func init() {
-	RetrtDuration.Store(300)
+	RetryDuration.Store(300)
 }
 
 func Retry(ctx context.Context, fn func(ctx context.Context) error, step ...int) (err error) {
@@ -45,7 +45,7 @@ func Retry(ctx context.Context, fn func(ctx context.Context) error, step ...int)
 				log.Errorf(`%v (Wait to try again later)`, err)
 				retryCount += _step
 			}
-			if tm.Sub(startTime) >= time.Duration(RetrtDuration.Load())*time.Second {
+			if tm.Sub(startTime) >= time.Duration(RetryDuration.Load())*time.Second {
 				return
 			}
 		}
