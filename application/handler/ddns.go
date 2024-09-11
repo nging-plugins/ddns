@@ -6,8 +6,8 @@ import (
 	"github.com/webx-top/echo"
 	"github.com/webx-top/echo/code"
 
-	"github.com/admpub/nging/v5/application/handler"
-	"github.com/admpub/nging/v5/application/library/webhook"
+	"github.com/coscms/webcore/library/common"
+	"github.com/coscms/webcore/library/webhook"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager/boot"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager/config"
@@ -40,7 +40,7 @@ func DdnsSettings(ctx echo.Context) error {
 		if err != nil {
 			goto END
 		}
-		handler.SendOk(ctx, ctx.T(`保存成功`))
+		common.SendOk(ctx, ctx.T(`保存成功`))
 		ctx.Set(`isRunning`, boot.IsRunning())
 		return ctx.Redirect(`/tool/ddns`)
 	}
@@ -57,5 +57,5 @@ END:
 	ctx.Set(`trackerTypes`, dnsdomain.TrackerTypes.Slice())
 	ctx.Set(`httpMethods`, webhook.Methods)
 	ctx.Set(`isRunning`, boot.IsRunning())
-	return ctx.Render(`ddns/ddns`, handler.Err(ctx, err))
+	return ctx.Render(`ddns/ddns`, common.Err(ctx, err))
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/admpub/log"
 	"github.com/admpub/resty/v2"
 
-	"github.com/admpub/nging/v5/application/library/ip2region"
-	"github.com/admpub/nging/v5/application/library/restclient"
+	"github.com/coscms/webcore/library/ip2region"
+	"github.com/coscms/webcore/library/restclient"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager/config"
 )
 

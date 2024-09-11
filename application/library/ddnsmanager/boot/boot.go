@@ -11,9 +11,9 @@ import (
 
 	"github.com/admpub/confl"
 	"github.com/admpub/log"
-	nconfig "github.com/admpub/nging/v5/application/library/config"
-	"github.com/admpub/nging/v5/application/library/config/startup"
 	syncOnce "github.com/admpub/once"
+	nconfig "github.com/coscms/webcore/library/config"
+	"github.com/coscms/webcore/library/config/startup"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager/config"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager/domain"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsretry"
