@@ -7,7 +7,7 @@ import (
 	"github.com/webx-top/echo"
 	"golang.org/x/net/publicsuffix"
 
-	"github.com/coscms/webcore/library/common"
+	"github.com/coscms/webcore/library/filecache"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager/config"
 	"github.com/nging-plugins/ddnsmanager/application/library/ddnsmanager/domain/dnsdomain"
 )
@@ -37,12 +37,12 @@ type Domains struct {
 }
 
 func (domains *Domains) RestoreIP() error {
-	b, err := common.ReadCache(`ip`, `ddns_ipv4`)
+	b, err := filecache.ReadCache(`ip`, `ddns_ipv4`)
 	if err != nil {
 		return err
 	}
 	domains.IPv4Addr = string(b)
-	b, err = common.ReadCache(`ip`, `ddns_ipv6`)
+	b, err = filecache.ReadCache(`ip`, `ddns_ipv6`)
 	if err != nil {
 		return err
 	}
@@ -53,17 +53,17 @@ func (domains *Domains) RestoreIP() error {
 func (domains *Domains) ClearIP() error {
 	domains.IPv4Addr = ``
 	domains.IPv6Addr = ``
-	common.RemoveCache(`ip`, `ddns_ipv4`)
-	common.RemoveCache(`ip`, `ddns_ipv6`)
+	filecache.RemoveCache(`ip`, `ddns_ipv4`)
+	filecache.RemoveCache(`ip`, `ddns_ipv6`)
 	return nil
 }
 
 func (domains *Domains) SaveIP(ver int) error {
 	switch ver {
 	case 4:
-		return common.WriteCache(`ip`, `ddns_ipv4`, []byte(domains.IPv4Addr))
+		return filecache.WriteCache(`ip`, `ddns_ipv4`, []byte(domains.IPv4Addr))
 	case 6:
-		return common.WriteCache(`ip`, `ddns_ipv6`, []byte(domains.IPv6Addr))
+		return filecache.WriteCache(`ip`, `ddns_ipv6`, []byte(domains.IPv6Addr))
 	default:
 		return nil
 	}

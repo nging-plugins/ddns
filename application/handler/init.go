@@ -19,13 +19,12 @@
 package handler
 
 import (
+	"github.com/coscms/webcore/library/module"
 	"github.com/webx-top/echo"
-
-	"github.com/coscms/webcore/library/route"
 )
 
-func RegisterRoute(r *route.Collection) {
-	r.Backend.RegisterToGroup(`/tool`, registerRoute)
+func RegisterRoute(r module.Router) {
+	r.Backend().RegisterToGroup(`/tool`, registerRoute)
 }
 
 func registerRoute(g echo.RouteRegister) {

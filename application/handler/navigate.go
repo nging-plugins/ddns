@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/coscms/webcore/registry/navigate"
+	"github.com/coscms/webcore/library/navigate"
 )
 
 var TopNavigate = &navigate.Item{
